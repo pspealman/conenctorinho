@@ -1,0 +1,11 @@
+bin	contig	aro
+1165MaxBin2ondata612,data609,anddata124(bins)/002.fasta	k91_208451	adeF
+1165MaxBin2ondata612,data609,anddata124(bins)/002.fasta	k91_13100	tet(V)
+1165MaxBin2ondata612,data609,anddata124(bins)/002.fasta	k91_143586	mexX
+1165MaxBin2ondata612,data609,anddata124(bins)/002.fasta	k91_564686	qacJ
+1165MaxBin2ondata612,data609,anddata124(bins)/003.fasta	k91_118405	linG
+1165MaxBin2ondata612,data609,anddata124(bins)/003.fasta	k91_433697	vanW gene in vanI cluster
+1165MaxBin2ondata612,data609,anddata124(bins)/003.fasta	k91_136628	vanW gene in vanI cluster
+1165MaxBin2ondata612,data609,anddata124(bins)/003.fasta	k91_347198	vanW gene in vanI cluster
+1165MaxBin2ondata612,data609,anddata124(bins)/003.fasta	k91_603877	Staphylococcus aureus mupB conferring resistance to mupirocin
+1165MaxBin2ondata612,data609,anddata124(bins)/003.fasta	k91_302720	vanH gene in vanO cluster
