@@ -64,9 +64,6 @@ output_file = open(output_name, 'w')
 header = ('bin\tcontig\taro\n')
 output_file.write(header)
     
-df = pd.read_table(args.rgi_file, index_col=0, sep='\t')
-rgi_dict = df.to_dict('index')
-
 with zipfile.ZipFile(args.zip_path, mode="r") as archive:
     for filename in archive.namelist():
         #
