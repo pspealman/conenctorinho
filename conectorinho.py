@@ -11,35 +11,51 @@ This will create a output folder name <output_path> which will contain the resul
 @author: pspea
 """
 
-import pandas as pd
+#import pandas as pd
 import argparse
 import zipfile
 import io
+import pathlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-rgi', '--rgi_file', default='demo/rgi_nudge_data_22_data_25.txt')
 parser.add_argument('-zip', '--zip_path', default='demo/1165MaxBin2ondata612,data609,anddata124(bins).zip')                    
-parser.add_argument('-out',"--output_path", default='demo/')
+parser.add_argument('-out',"--output_path", default='demo/results/')
 
 args = parser.parse_args()
 
-df = pd.read_table(args.rgi_file, index_col=0, sep='\t')
-rgi_dict = df.to_dict('index')
+rgi_file = open(args.rgi_file)
+
+
+    # rgi_dict = []
+
+# df = pd.read_table(args.rgi_file, index_col=0, sep='\t')
+# rgi_dict = df.to_dict('index')
 
 rgi_contig_dict = {}
 
-for uid in rgi_dict:
-    contig = rgi_dict[uid]['Contig']
-    if contig.count('_') > 1:
-        contig = contig.rsplit('_', 1)[0]
+for line in rgi_file:
+    if 'Contig' not in line:
+        uid = line.split('\t')[0]
+        contig = line.split('\t')[1]
+        aro = line.split('\t')[8]
+                
+        #contig = rgi_dict[uid]['Contig']
+        if contig.count('_') > 1:
+            contig = contig.rsplit('_', 1)[0]
+            
+        #aro = rgi_dict[uid]['Best_Hit_ARO']
         
-    aro = rgi_dict[uid]['Best_Hit_ARO']
+        if contig not in rgi_contig_dict:
+            rgi_contig_dict[contig] = set()
+        
+        if aro not in rgi_contig_dict[contig]:
+            rgi_contig_dict[contig].add(aro)
+
+if '/' in args.output_path:
+    #path = args.output_path.rsplit('/', 1)[0]
+    pathlib.Path(args.output_path).mkdir(parents=True, exist_ok=True)
     
-    if contig not in rgi_contig_dict:
-        rgi_contig_dict[contig] = set()
-    
-    if aro not in rgi_contig_dict[contig]:
-        rgi_contig_dict[contig].add(aro)
 
 output_name = ('{}/conectorinho_results.txt').format(args.output_path)
 
