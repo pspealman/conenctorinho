@@ -18,19 +18,15 @@ import io
 import pathlib
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-rgi', '--rgi_file', default='demo/rgi_nudge_data_22_data_25.txt')
-parser.add_argument('-zip', '--zip_path', default='demo/1165MaxBin2ondata612,data609,anddata124(bins).zip')                    
+parser.add_argument('-rgi', '--rgi_file', default='demo/rgi_output.txt')
+parser.add_argument('-zip', '--zip_path', default='demo/MaxBin2_output.zip')                    
+parser.add_argument('-abu', '--abundance_file', default='demo/MaxBin2_abundances.txt')                    
+
 parser.add_argument('-out',"--output_path", default='demo/results/')
 
 args = parser.parse_args()
 
 rgi_file = open(args.rgi_file)
-
-
-    # rgi_dict = []
-
-# df = pd.read_table(args.rgi_file, index_col=0, sep='\t')
-# rgi_dict = df.to_dict('index')
 
 rgi_contig_dict = {}
 
@@ -40,30 +36,50 @@ for line in rgi_file:
         contig = line.split('\t')[1]
         aro = line.split('\t')[8]
                 
-        #contig = rgi_dict[uid]['Contig']
         if contig.count('_') > 1:
             contig = contig.rsplit('_', 1)[0]
-            
-        #aro = rgi_dict[uid]['Best_Hit_ARO']
-        
+                    
         if contig not in rgi_contig_dict:
             rgi_contig_dict[contig] = set()
         
         if aro not in rgi_contig_dict[contig]:
             rgi_contig_dict[contig].add(aro)
+            
+rgi_file.close()
 
 if '/' in args.output_path:
-    #path = args.output_path.rsplit('/', 1)[0]
     pathlib.Path(args.output_path).mkdir(parents=True, exist_ok=True)
+    
+abundance_file = open(args.abundance_file)
+contig_adundance = {}
+total_depth = 0
+
+for line in abundance_file:
+    contig = line.split('\t')[0]
+    reads = float(line.split('\t')[1])
+    total_depth += reads
+    
+    if contig in rgi_contig_dict:
+        if contig not in contig_adundance:
+            contig_adundance[contig] = {'reads':0, 'pct_abun':0}
+            
+        contig_adundance[contig]['reads'] += reads
+        
+abundance_file.close()
+
+for contig in contig_adundance:
+    contig_adundance[contig]['pct_abun'] = 100*contig_adundance[contig]['reads']/total_depth
+        
     
 
 output_name = ('{}/conectorinho_results.txt').format(args.output_path)
 
 output_file = open(output_name, 'w')
 
-header = ('bin\tcontig\taro\n')
+header = ('bin\tcontig\taro\tpct_abun\n')
 output_file.write(header)
     
+
 with zipfile.ZipFile(args.zip_path, mode="r") as archive:
     for filename in archive.namelist():
         #
@@ -74,10 +90,13 @@ with zipfile.ZipFile(args.zip_path, mode="r") as archive:
                 
                 if line[0] == '>':
                     contig_from_bin = line.split('>')[1].strip()
-                    if contig_from_bin in rgi_contig_dict:                        
+                    
+                    if contig_from_bin in rgi_contig_dict:
+                        pct_abun = contig_adundance[contig_from_bin]['pct_abun']
+                        
                         for aro in rgi_contig_dict[contig_from_bin]:
-                            outline = ('{isbin}\t{contig}\t{aro}\n').format(
-                                isbin = filename, contig = contig_from_bin, aro = aro)
+                            outline = ('{isbin}\t{contig}\t{aro}\t{pct_abun}\n').format(
+                                isbin = filename, contig = contig_from_bin, aro = aro, pct_abun = pct_abun)
                             print(outline)
                             
                             output_file.write(outline)
@@ -87,3 +106,6 @@ with zipfile.ZipFile(args.zip_path, mode="r") as archive:
             archive.extract(filename, args.output_path)
                 
 output_file.close()
+
+
+    
